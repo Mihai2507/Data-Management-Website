@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stergere Date</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_stergere.css') }}">
+    <script>
+        function showDeletionOptions() {
+            const table = document.getElementById('table').value;
+            const columnSection = document.getElementById('column-section');
+            const valueSection = document.getElementById('value-section');
+            const columnSelect = document.getElementById('column');
+
+            // Display sections based on table selection
+            if (table) {
+                columnSection.style.display = 'block';
+                valueSection.style.display = 'block';
+                updateColumnOptions(table);
+            } else {
+                columnSection.style.display = 'none';
+                valueSection.style.display = 'none';
+            }
+        }
+
+        function updateColumnOptions(table) {
+            const columnSelect = document.getElementById('column');
+            let columns = [];
+
+            switch (table) {
+                case 'cursant':
+                    columns = ['id', 'nume', 'prenume', 'cnp', 'prenume_mama', 'prenume_tata', 'locul_nasterii'];
+                    break;
+                case 'companie':
+                    columns = ['id', 'nume', 'ocupatie', 'cor', 'localitate', 'judet', 'numar_registru', 'data_registru'];
+                    break;
+                case 'comisie':
+                    columns = ['id', 'director', 'secretar', 'presedinte'];
+                    break;
+                case 'curs':
+                    columns = ['id', 'nume_curs', 'descriere', 'data_incepere', 'durata'];
+                    break;
+            }
+
+            columnSelect.innerHTML = ''; // Clear previous options
+            columns.forEach(column => {
+                const option = document.createElement('option');
+                option.value = column;
+                option.textContent = column;
+                columnSelect.appendChild(option);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Stergere Date</h1>
+        <form action="{{ url_for('stergere_date') }}" method="POST">
+            <label for="table">Selectează tabelul:</label>
+            <select name="table" id="table" onchange="showDeletionOptions()">
+                <option value="">--Selectează--</option>
+                <option value="cursant">Cursant</option>
+                <option value="companie">Companie</option>
+                <option value="comisie">Comisie</option>
+                <option value="curs">Curs</option>
+            </select><br>
+
+            <div id="column-section" style="display:none;">
+                <label for="column">Coloana:</label>
+                <select name="column" id="column" required></select><br>
+            </div>
+
+            <div id="value-section" style="display:none;">
+                <label for="value">Valoare:</label>
+                <input type="text" name="value" id="value" required><br>
+            </div>
+
+            <button class="button" type="submit">Șterge</button>
+        </form>
+
+        <div class="link-box">
+            <a href="{{ url_for('home') }}" class="button">Înapoi la pagina principală</a>
+        </div>
+    </div>
+</body>
+</html>

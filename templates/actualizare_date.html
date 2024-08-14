@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualizare Date</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_actualizare.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Actualizare Date</h1>
+        <form method="post">
+            <label for="dropdown">Selectează tipul de date pentru actualizare:</label>
+            <select id="dropdown" name="table" onchange="handleDropdownChange()">
+                <option value="">Selectează</option>
+                <option value="cursant">Cursant</option>
+                <option value="companie">Companie</option>
+                <option value="comisie">Comisie</option>
+                <option value="curs">Curs</option>
+            </select>
+        </form>
+
+        <div id="updateForm" class="hidden">
+            <h2>Actualizare Date</h2>
+            <form method="post">
+                <input type="hidden" name="table" id="tableInput" value="" />
+                <label for="column">Selectează câmpul pentru actualizare:</label>
+                <select id="column" name="column">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <label for="old_value">Valoare veche:</label>
+                <input type="text" id="old_value" name="old_value" value="" />
+                <label for="new_value">Valoare nouă:</label>
+                <input type="text" id="new_value" name="new_value" value="" />
+                <input type="submit" value="Actualizează">
+            </form>
+        </div>
+
+        <div class="link-box">
+            <a href="{{ url_for('home') }}" class="button">Înapoi la pagina principală</a>
+        </div>
+    </div>
+
+    <script>
+        function handleDropdownChange() {
+            var dropdown = document.getElementById('dropdown');
+            var updateForm = document.getElementById('updateForm');
+            var tableInput = document.getElementById('tableInput');
+            var columnSelect = document.getElementById('column');
+
+            // Clear previous options
+            columnSelect.innerHTML = '';
+
+            if (dropdown.value) {
+                tableInput.value = dropdown.value;
+                updateForm.classList.remove('hidden');
+                populateColumns(dropdown.value);
+            } else {
+                updateForm.classList.add('hidden');
+            }
+        }
+
+        function populateColumns(table) {
+            var columnSelect = document.getElementById('column');
+            var columns = {
+                cursant: ['nume', 'prenume', 'cnp', 'prenume_mama', 'prenume_tata', 'locul_nasterii'],
+                companie: ['nume', 'ocupatie', 'cor', 'localitate', 'judet', 'numar_registru', 'data_registru'],
+                comisie: ['director', 'secretar', 'presedinte'],
+                curs: ['nume_curs', 'descriere', 'data_incepere', 'durata']
+            };
+
+            if (columns[table]) {
+                columns[table].forEach(function(column) {
+                    var option = document.createElement('option');
+                    option.value = column;
+                    option.text = column.charAt(0).toUpperCase() + column.slice(1);
+                    columnSelect.add(option);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
