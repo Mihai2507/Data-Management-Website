@@ -16,24 +16,26 @@ def adaugare():
     if request.method == 'POST':
         if request.form['form_type'] == 'cursant':
             nume = request.form['cursantNume']
-            prenume = request.form['cursantPrenume']
             cnp = request.form['cursantCNP']
             judet_sector = request.form['cursantJudetSector']
             localitate = request.form['cursantLocalitate']
             prenume_mama = request.form['cursantParinteMama']
             prenume_tata = request.form['cursantParinteTata']
-            data_nasterii = request.form['cursantDataNasterii']
+            anul_nasterii = request.form['cursantAnulNasterii']
+            luna_nasterii = request.form['cursantLunaNasterii']
+            ziua_nasterii = request.form['cursantZiuaNasterii']
             locul_nasterii = request.form['cursantLocNastere']
 
             cursant_data = {
                 'nume': nume,
-                'prenume': prenume,
                 'cnp': cnp,
                 'judet_sector': judet_sector,
                 'localitate': localitate,
                 'prenume_mama': prenume_mama,
                 'prenume_tata': prenume_tata,
-                'data_nasterii': data_nasterii,
+                'anul_nasterii': anul_nasterii,
+                'luna_nasterii': luna_nasterii,
+                'ziua_nasterii': ziua_nasterii,
                 'locul_nasterii': locul_nasterii
             }
             adauga_inregistrari(cursant_data, 'cursant')
@@ -69,7 +71,10 @@ def adaugare():
             nr_registru = request.form['cursNrRegistru']
             data_incepere = request.form['cursDataIncepere']
             data_finalizare = request.form['cursDataFinalizare']
-            data_examinare = request.form['cursDataExaminare']
+            durata = request.form['cursDurata']
+            anul_examinarii = request.form['cursAnulExaminarii']
+            luna_examinarii = request.form['cursLunaExaminarii']
+            ziua_examinarii = request.form['cursExaminarii']
 
             curs_data = {
                 'nume_curs': nume_curs,
@@ -78,7 +83,10 @@ def adaugare():
                 'nr_registru': nr_registru,
                 'data_incepere': data_incepere,
                 'data_finalizare': data_finalizare,
-                'data_examinare': data_examinare
+                'durata': durata,
+                'anul_examinarii': anul_examinarii,
+                'luna_examinarii': luna_examinarii,
+                'ziua_examinarii': ziua_examinarii,
             }
             adauga_inregistrari(curs_data, 'curs')
 
