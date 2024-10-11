@@ -1,0 +1,14 @@
+__6__ = cursant.nume
+__7__ = cursant.Prenume_tata
+__8__ = cursant.Prenume_mama
+__9__ = cursant.localitate
+__10__ = cursant.strada
+__11__ = cursant.numar_strada
+__12__ = cursant.bloc
+__13__ = cursant.scara_bloc
+__14__ = cursant.nr_apartament
+__15__ = cursant.judet_sector
+__16__ = cursant.nr_telefon
+__17__= cursant.cnp
+__18__= curs.dataIncepere
+

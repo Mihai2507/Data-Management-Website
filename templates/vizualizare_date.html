@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizualizare Date</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_vizualizare.css') }}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function fetchData(url, tableId, columns) {
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.querySelector(`#${tableId} tbody`);
+                        tableBody.innerHTML = '';
+                        data.forEach(row => {
+                            const tr = document.createElement('tr');
+                            columns.forEach(column => {
+                                const td = document.createElement('td');
+                                td.textContent = row[column] || '';
+                                tr.appendChild(td);
+                            });
+                            tableBody.appendChild(tr);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
+            }
+
+            function showTable(tableId) {
+                document.querySelectorAll('.data-table').forEach(function(table) {
+                    table.classList.add('hidden');
+                });
+
+                if (tableId) {
+                    document.getElementById(tableId).classList.remove('hidden');
+
+                    const urls = {
+                        cursanti: '/api/cursanti',
+                        companii: '/api/companii',
+                        comisii: '/api/comisii',
+                        cursuri: '/api/cursuri'
+                    };
+                    const columns = {
+                        cursanti: ['nume', 'cnp', 'judet_sector', 'localitate', 'Prenume_mama', 'Prenume_tata','nr_telefon', 'anul_nasterii', 'luna_nasterii', 'ziua_nasterii', 'locul_nasterii'],
+                        companii: ['nume', 'localitate', 'judet'],
+                        comisii: ['director', 'secretar', 'presedinte'],
+                        cursuri: ['nume_curs', 'descriere', 'cor', 'nr_registru', 'data_incepere', 'data_finalizare', 'durata', 'anul_examinarii', 'luna_examinarii', 'ziua_examinarii']
+                    };
+
+                    fetchData(urls[tableId], tableId + '-table', columns[tableId]);
+                }
+            }
+
+            const select = document.getElementById('dataSelect');
+            select.addEventListener('change', function() {
+                if (this.value === 'option0') {
+                    document.querySelectorAll('.data-table').forEach(function(table) {
+                        table.classList.add('hidden');
+                    });
+                } else {
+                    showTable(this.value);
+                }
+            });
+
+            setInterval(() => {
+                if (select.value !== 'option0') {
+                    showTable(select.value);
+                }
+            }, 10000);
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Vizualizare Date</h1>
+        <div class="dropdown">
+            <label for="dataSelect">Alege tipul de date:</label>
+            <select id="dataSelect">
+                <option value="option0">Selectați:</option>
+                <option value="cursanti">Date Cursanți</option>
+                <option value="companii">Date Companii</option>
+                <option value="comisii">Date Comisii</option>
+                <option value="cursuri">Date Cursuri</option>
+            </select>
+        </div>
+
+        <div id="cursanti" class="data-table hidden">
+            <h2>Date Cursanți</h2>
+            <table id="cursanti-table">
+                <thead>
+                    <tr>
+                        <th>Nume</th>
+                        <th>CNP</th>
+                        <th>Județ/Sector</th>
+                        <th>Localitate</th>
+                        <th>Prenume Mamă</th>
+                        <th>Prenume Tată</th>
+                        <th>Numar Telefon</th>
+                        <th>Anul Nașterii</th>
+                        <th>Luna Nașterii</th>
+                        <th>Ziua Nașterii</th>
+                        <th>Locul Nașterii</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div id="companii" class="data-table hidden">
+            <h2>Date Companii</h2>
+            <table id="companii-table">
+                <thead>
+                    <tr>
+                        <th>Nume</th>
+                        <th>Localitate</th>
+                        <th>Județ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="comisii" class="data-table hidden">
+            <h2>Date Comisii</h2>
+            <table id="comisii-table">
+                <thead>
+                    <tr>
+                        <th>Director</th>
+                        <th>Secretar</th>
+                        <th>Președinte</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="cursuri" class="data-table hidden">
+            <h2>Date Cursuri</h2>
+            <table id="cursuri-table">
+                <thead>
+                    <tr>
+                        <th>Nume Curs</th>
+                        <th>Descriere</th>
+                        <th>CoR</th>
+                        <th>Nr. Registru</th>
+                        <th>Data Începere</th>
+                        <th>Data Finalizare</th>
+                        <th>Durată</th>
+                        <th>Anul Examinării</th>
+                        <th>Luna Examinării</th>
+                        <th>Ziua Examinării</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="link-box">
+            <a href="{{ url_for('home') }}" class="button">Înapoi la pagina principală</a>
+        </div>
+    </div>
+</body>
+</html>

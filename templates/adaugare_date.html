@@ -23,7 +23,7 @@
 
         <div id="cursantForm" class="hidden">
             <h2>Introducere Date Cursant</h2>
-            <form method="post">
+            <form method="post" onsubmit="return validateForm()">
                 <input type="hidden" name="form_type" value="cursant">
                 <label for="cursantNume">Nume:</label>
                 <input type="text" id="cursantNume" name="cursantNume" />
@@ -37,11 +37,29 @@
                 <label for="cursantLocalitate">Localitate:</label>
                 <input type="text" id="cursantLocalitate" name="cursantLocalitate" />
                 <hr />
+                <label for="cursantParinteTata">Prenume tată:</label>
+                <input type="text" id="cursantParinteTata" name="cursantParinteTata" />
+                <hr />
                 <label for="cursantParinteMama">Prenume mamă:</label>
                 <input type="text" id="cursantParinteMama" name="cursantParinteMama" />
                 <hr />
-                <label for="cursantParinteTata">Prenume tată:</label>
-                <input type="text" id="cursantParinteTata" name="cursantParinteTata" />
+                <label for="cursantStrada">Strada:</label>
+                <input type="text" id="cursantStrada" name="cursantStrada" />
+                <hr />
+                 <label for="cursantNumarStrada">Numar Strada:</label>
+                <input type="text" id="cursantNumarStrada" name="cursantNumarStrada" />
+                <hr />
+                 <label for="cursantBloc">Bloc:</label>
+                <input type="text" id="cursantBloc" name="cursantBloc" />
+                <hr />
+                 <label for="cursantScaraBloc">Scara bloc:</label>
+                <input type="text" id="cursantScaraBloc" name="cursantScaraBloc" />
+                <hr />
+                 <label for="cursantNrApartament">Numar apartament:</label>
+                <input type="text" id="cursantNrApartament" name="cursantNrApartament" />
+                <hr />
+                <label for="cursantNrTelefon">Numar telefon:</label>
+                <input type="text" id="cursantNrTelefon" name="cursantNrTelefon" />
                 <hr />
                 <label for="cursantAnulNasterii">Anul nașterii:</label>
                 <input type="text" id="cursantAnulNasterii" name="cursantAnulNasterii" />
@@ -111,10 +129,10 @@
                 <input type="text" id="cursNrRegistru" name="cursNrRegistru" />
                 <hr />
                 <label for="cursDataIncepere">Data începerii:</label>
-                <input type="date" id="cursDataIncepere" name="cursDataIncepere" />
+                <input type="text" id="cursDataIncepere" name="cursDataIncepere" />
                 <hr />
                 <label for="cursDataFinalizare">Data finalizarii:</label>
-                <input type="date" id="cursDataFinalizare" name="cursDataFinalizare" />
+                <input type="text" id="cursDataFinalizare" name="cursDataFinalizare" />
                 <hr />
                 <label for="cursDurata">Durata:</label>
                 <input type="text" id="cursDurata" name="cursDurata" />
@@ -139,8 +157,7 @@
         </div>
     </div>
 
-    <script>
-        function handleDropdownChange() {
+ <script>function handleDropdownChange() {
             var dropdown = document.getElementById('dropdown');
             var cursantForm = document.getElementById('cursantForm');
             var companieForm = document.getElementById('companieForm');
@@ -162,6 +179,66 @@
                 cursForm.classList.remove('hidden');
             }
         }
-    </script>
+
+        function validateForm() {
+            var cnp = document.getElementById('cursantCNP').value;
+            var nume = document.getElementById('cursantNume').value;
+
+            if (cnp.length !== 13) {
+                alert("CNP-ul trebuie să aibă 13 caractere!");
+                return false;
+            }
+
+
+            if (!['1', '2', '3', '4', '5', '6', '7', '8'].includes(cnp[0])) {
+                alert("CNP-ul nu trebuie să înceapă cu 0 sau 9!");
+                return false;
+            }
+
+
+            if (cnp.trim() === "") {
+                alert("CNP-ul este gol!");
+                return false;
+            }
+
+
+            if (!/^\d+$/.test(cnp)) {
+                alert("CNP-ul nu trebuie să conțină litere!");
+                return false;
+            }
+
+            var valoare_ct = [2, 7, 9, 1, 4, 6, 3, 5, 8, 2, 7, 9];
+            var suma = 0;
+            for (var i = 0; i < 12; i++) {
+                suma += parseInt(cnp[i]) * valoare_ct[i];
+            }
+            var cifra_control = suma % 11;
+            if (cifra_control === 10) {
+                cifra_control = 1;
+            }
+            if (cifra_control !== parseInt(cnp[12])) {
+                alert("Ultima cifră a CNP-ului nu este corectă!");
+                return false;
+            }
+
+            if (nume.trim() === "") {
+                alert("Numele nu poate fi gol!");
+                return false;
+            }
+
+
+            if (/\d/.test(nume)) {
+                alert("Numele nu trebuie să conțină cifre!");
+                return false;
+            }
+
+            var car_interzise = /[@\/+=?!;<>#$&*()%~':\[\]{}]/;
+            if (car_interzise.test(nume)) {
+                alert("Numele nu trebuie să conțină caractere speciale interzise!");
+                return false;
+            }
+
+            return true;
+        }</script>
 </body>
 </html>

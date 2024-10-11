@@ -3,24 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generare Documente</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_generare.css') }}">
+    <title>Document Replacement</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .container { margin-top: 20px; }
+        .placeholder { color: red; }
+        .form-group label { font-weight: bold; }
+        .preview { background-color: #f8f9fa; border: 1px solid #ddd; padding: 10px; margin-bottom: 20px; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Generare Documente</h1>
-        <p>Aici puteți genera documentele dorite.</p>
-        <div class="btn-group">
-            <button style="border-width: 10%;">Diploma ex</button>
-            <button style="border-width: 10%;">DIPLOMA Y</button>
-            <button style="border-width: 10%;">X</button>
-            <button style="border-width: 10%;">X</button>
-            <button style="border-width: 10%;">X</button>
-        </div>
-        <div class="link-box">
-            <a href="{{ url_for('home') }}" class="button">Înapoi la pagina principală</a>
+        <h1>Select a Document</h1>
+        <form id="document-form">
+            <div class="form-group">
+                <label for="document">Choose Document:</label>
+                <select id="document" class="form-control" name="document_name" required>
+                    <option value="" disabled selected>Select your document</option>
+                    {% for doc in documents %}
+                        <option value="{{ doc }}">{{ doc }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Load Document</button>
+        </form>
+        <hr>
+        <div id="preview-section" style="display:none;">
+            <h2>Document Preview</h2>
+            <div id="document-preview" class="preview"></div>
+            <hr>
+            <h2>Manual Placeholder Replacements</h2>
+            <form id="replacement-form">
+                <input type="hidden" name="document_name" id="replacement-document-name">
+                <div id="manual-placeholders" class="form-group"></div>
+                <div id="dropdowns" class="form-group"></div>
+                <button type="submit" class="btn btn-success">Generate Document</button>
+            </form>
         </div>
     </div>
+
+    <!-- Load the full version of jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#document-form').on('submit', function(event) {
+                event.preventDefault();
+                var documentName = $('#document').val();
+                $('#replacement-document-name').val(documentName);
+
+                $.post('/get_data', { document_name: documentName }, function(data) {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        $('#manual-placeholders').empty();
+                        $('#dropdowns').empty();
+
+                        // Preview the document
+                        $('#document-preview').html(data.document_content.replace(/(__\d+__)/g, '<span class="placeholder">$1</span>'));
+                        $('#preview-section').show();
+
+                        data.manual_placeholders.forEach(function(placeholder) {
+                            var label = $('<label>').text(placeholder);
+                            var input = $('<input>').attr({ type: 'text', name: placeholder, class: 'form-control' });
+                            var div = $('<div>').addClass('form-group').append(label).append(input);
+                            $('#manual-placeholders').append(div);
+                        });
+
+                        ['cursant', 'companie', 'comisie', 'curs'].forEach(function(table) {
+                            var dropdown = $('<select>').attr({ name: table, class: 'form-control' });
+                            dropdown.append('<option value="" disabled selected>Select ' + table + '</option>');
+                            $.post('/fetch_options', { table_name: table }, function(options) {
+                                if (options.error) {
+                                    alert(options.error);
+                                } else {
+                                    options.forEach(function(option) {
+                                        dropdown.append($('<option>').attr('value', option.id).text(option.name));
+                                    });
+                                }
+                            });
+                            var div = $('<div>').addClass('form-group').append($('<label>').text('Select ' + table)).append(dropdown);
+                            $('#dropdowns').append(div);
+                        });
+                    }
+                });
+            });
+
+            $('#replacement-form').on('submit', function(event) {
+                event.preventDefault();
+                $.post('/generate', $(this).serialize(), function(data) {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        // Trigger file download
+                        window.location.href = data.file_url;
+
+                        // Refresh the page after download starts
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000); // Adjust timeout as needed to ensure file download starts
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

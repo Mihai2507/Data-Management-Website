@@ -1,0 +1,606 @@
+Index: main.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import Flask, render_template, request, redirect, url_for\r\nfrom adaugare import adauga_inregistrari\r\nfrom stergere import sterge_inregistrare\r\nfrom actualizare import actualizeaza_inregistrare\r\n\r\napp = Flask(__name__)\r\n\r\n\r\n@app.route('/', methods=['GET', 'POST'])\r\ndef home():\r\n    return render_template('index.html')\r\n\r\n\r\n@app.route('/adaugare', methods=['GET', 'POST'])\r\ndef adaugare():\r\n    if request.method == 'POST':\r\n        if request.form['form_type'] == 'cursant':\r\n            nume = request.form['cursantNume']\r\n            prenume = request.form['cursantPrenume']\r\n            cnp = request.form['cursantCNP']\r\n            judet_sector = request.form['cursantJudetSector']\r\n            localitate = request.form['cursantLocalitate']\r\n            prenume_mama = request.form['cursantParinteMama']\r\n            prenume_tata = request.form['cursantParinteTata']\r\n            data_nasterii = request.form['cursantDataNasterii']\r\n            locul_nasterii = request.form['cursantLocNastere']\r\n\r\n            cursant_data = {\r\n                'nume': nume,\r\n                'prenume': prenume,\r\n                'cnp': cnp,\r\n                'judet_sector': judet_sector,\r\n                'localitate': localitate,\r\n                'prenume_mama': prenume_mama,\r\n                'prenume_tata': prenume_tata,\r\n                'data_nasterii': data_nasterii,\r\n                'locul_nasterii': locul_nasterii\r\n            }\r\n            adauga_inregistrari(cursant_data, 'cursant')\r\n\r\n        elif request.form['form_type'] == 'companie':\r\n            nume = request.form['companieNume']\r\n            localitate = request.form['companieLocalitate']\r\n            judet = request.form['companieJudet']\r\n\r\n            companie_data = {\r\n                'nume': nume,\r\n                'localitate': localitate,\r\n                'judet': judet,\r\n            }\r\n            adauga_inregistrari(companie_data, 'companie')\r\n\r\n        elif request.form['form_type'] == 'comisie':\r\n            director = request.form['comisieDirector']\r\n            secretar = request.form['comisieSecretar']\r\n            presedinte = request.form['comisiePresedinte']\r\n\r\n            comisie_data = {\r\n                'director': director,\r\n                'secretar': secretar,\r\n                'presedinte': presedinte,\r\n            }\r\n            adauga_inregistrari(comisie_data, 'comisie')\r\n\r\n        elif request.form['form_type'] == 'curs':\r\n            nume_curs = request.form['cursNume']\r\n            descriere = request.form['cursDescriere']\r\n            cor = request.form['cursCor']\r\n            nr_registru = request.form['cursNrRegistru']\r\n            data_incepere = request.form['cursDataIncepere']\r\n            data_finalizare = request.form['cursDataFinalizare']\r\n            data_examinare = request.form['cursDataExaminare']\r\n\r\n            curs_data = {\r\n                'nume_curs': nume_curs,\r\n                'descriere': descriere,\r\n                'cor': cor,\r\n                'nr_registru': nr_registru,\r\n                'data_incepere': data_incepere,\r\n                'data_finalizare': data_finalizare,\r\n                'data_examinare': data_examinare\r\n            }\r\n            adauga_inregistrari(curs_data, 'curs')\r\n\r\n        return redirect(url_for('adaugare'))\r\n    return render_template('adaugare_date.html')\r\n\r\n\r\n@app.route('/generare_documente', methods=['GET', 'POST'])\r\ndef generare_documente():\r\n    return render_template('generare_documente.html')\r\n\r\n\r\n@app.route('/actualizare_date', methods=['GET', 'POST'])\r\ndef actualizare_date():\r\n    if request.method == 'POST':\r\n        table = request.form.get('table')\r\n        column = request.form.get('column')\r\n        old_value = request.form['old_value']\r\n        new_value = request.form.get('new_value')\r\n        if not table or not column or not new_value:\r\n            return \"Error: Missing data in form\", 400\r\n\r\n        actualizeaza_inregistrare(table, column, old_value, new_value)\r\n        return redirect(url_for('actualizare_date'))\r\n    return render_template('actualizare_date.html')\r\n\r\n\r\n@app.route('/stergere_date', methods=['GET', 'POST'])\r\ndef stergere_date():\r\n    if request.method == 'POST':\r\n        table = request.form['table']\r\n        column = request.form['column']\r\n        value = request.form['value']\r\n        sterge_inregistrare(table, column, value)\r\n        return redirect(url_for('stergere_date'))\r\n    return render_template('stergere_date.html')\r\n\r\n\r\nif __name__ == '__main__':\r\n    app.run(debug=True)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/main.py b/main.py
+--- a/main.py	
++++ b/main.py	
+@@ -1,7 +1,8 @@
+-from flask import Flask, render_template, request, redirect, url_for
++from flask import Flask, render_template, request, redirect, url_for, jsonify
+ from adaugare import adauga_inregistrari
+ from stergere import sterge_inregistrare
+ from actualizare import actualizeaza_inregistrare
++from vizualizare import obtine_date
+ 
+ app = Flask(__name__)
+ 
+@@ -16,24 +17,26 @@
+     if request.method == 'POST':
+         if request.form['form_type'] == 'cursant':
+             nume = request.form['cursantNume']
+-            prenume = request.form['cursantPrenume']
+             cnp = request.form['cursantCNP']
+             judet_sector = request.form['cursantJudetSector']
+             localitate = request.form['cursantLocalitate']
+             prenume_mama = request.form['cursantParinteMama']
+             prenume_tata = request.form['cursantParinteTata']
+-            data_nasterii = request.form['cursantDataNasterii']
++            anul_nasterii = request.form['cursantAnulNasterii']
++            luna_nasterii = request.form['cursantLunaNasterii']
++            ziua_nasterii = request.form['cursantZiuaNasterii']
+             locul_nasterii = request.form['cursantLocNastere']
+ 
+             cursant_data = {
+                 'nume': nume,
+-                'prenume': prenume,
+                 'cnp': cnp,
+                 'judet_sector': judet_sector,
+                 'localitate': localitate,
+                 'prenume_mama': prenume_mama,
+                 'prenume_tata': prenume_tata,
+-                'data_nasterii': data_nasterii,
++                'anul_nasterii': anul_nasterii,
++                'luna_nasterii': luna_nasterii,
++                'ziua_nasterii': ziua_nasterii,
+                 'locul_nasterii': locul_nasterii
+             }
+             adauga_inregistrari(cursant_data, 'cursant')
+@@ -69,7 +72,10 @@
+             nr_registru = request.form['cursNrRegistru']
+             data_incepere = request.form['cursDataIncepere']
+             data_finalizare = request.form['cursDataFinalizare']
+-            data_examinare = request.form['cursDataExaminare']
++            durata = request.form['cursDurata']
++            anul_examinarii = request.form['cursAnulExaminarii']
++            luna_examinarii = request.form['cursLunaExaminarii']
++            ziua_examinarii = request.form['cursZiuaExaminarii']
+ 
+             curs_data = {
+                 'nume_curs': nume_curs,
+@@ -78,7 +84,10 @@
+                 'nr_registru': nr_registru,
+                 'data_incepere': data_incepere,
+                 'data_finalizare': data_finalizare,
+-                'data_examinare': data_examinare
++                'durata': durata,
++                'anul_examinarii': anul_examinarii,
++                'luna_examinarii': luna_examinarii,
++                'ziua_examinarii': ziua_examinarii,
+             }
+             adauga_inregistrari(curs_data, 'curs')
+ 
+@@ -117,5 +126,34 @@
+     return render_template('stergere_date.html')
+ 
+ 
++@app.route('/vizualizare_date')
++def vizualizare_date():
++    return render_template('vizualizare_date.html')
++
++
++@app.route('/api/cursanti')
++def api_cursanti():
++    date_cursanti = obtine_date('cursant')
++    return jsonify(date_cursanti)
++
++
++@app.route('/api/companii')
++def api_companii():
++    date_companii = obtine_date('companie')
++    return jsonify(date_companii)
++
++
++@app.route('/api/comisii')
++def api_comisii():
++    date_comisii = obtine_date('comisie')
++    return jsonify(date_comisii)
++
++
++@app.route('/api/cursuri')
++def api_cursuri():
++    date_cursuri = obtine_date('curs')
++    return jsonify(date_cursuri)
++
++
+ if __name__ == '__main__':
+     app.run(debug=True)
+Index: templates/adaugare_date.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<head>\r\n    <meta charset=\"UTF-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n    <title>Adăugare Date</title>\r\n    <link href=\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\" rel=\"stylesheet\">\r\n    <link rel=\"stylesheet\" href=\"{{ url_for('static', filename='style_adaugare.css') }}\">\r\n</head>\r\n<body>\r\n    <div class=\"container\">\r\n        <h1>Adăugare Date</h1>\r\n        <form method=\"post\">\r\n            <label for=\"dropdown\">Tipul de date introduse:</label>\r\n            <select id=\"dropdown\" name=\"options\" onchange=\"handleDropdownChange()\">\r\n                <option value=\"option0\">Selectează</option>\r\n                <option value=\"option1\">Introducere date cursant</option>\r\n                <option value=\"option2\">Introducere date companie</option>\r\n                <option value=\"option3\">Introducere date comisie</option>\r\n                <option value=\"option4\">Introducere date curs</option>\r\n            </select>\r\n        </form>\r\n\r\n        <div id=\"cursantForm\" class=\"hidden\">\r\n            <h2>Introducere Date Cursant</h2>\r\n            <form method=\"post\">\r\n                <input type=\"hidden\" name=\"form_type\" value=\"cursant\">\r\n                <label for=\"cursantNume\">Nume:</label>\r\n                <input type=\"text\" id=\"cursantNume\" name=\"cursantNume\" />\r\n                <hr />\r\n                <label for=\"cursantPrenume\">Prenume:</label>\r\n                <input type=\"text\" id=\"cursantPrenume\" name=\"cursantPrenume\" />\r\n                <hr />\r\n                <label for=\"cursantCNP\">CNP:</label>\r\n                <input type=\"text\" id=\"cursantCNP\" name=\"cursantCNP\" />\r\n                <hr />\r\n                <label for=\"cursantJudetSector\">Județ:</label>\r\n                <input type=\"text\" id=\"cursantJudetSector\" name=\"cursantJudetSector\" />\r\n                <hr />\r\n                <label for=\"cursantLocalitate\">Localitate:</label>\r\n                <input type=\"text\" id=\"cursantLocalitate\" name=\"cursantLocalitate\" />\r\n                <hr />\r\n                <label for=\"cursantParinteMama\">Prenume mamă:</label>\r\n                <input type=\"text\" id=\"cursantParinteMama\" name=\"cursantParinteMama\" />\r\n                <hr />\r\n                <label for=\"cursantParinteTata\">Prenume tată:</label>\r\n                <input type=\"text\" id=\"cursantParinteTata\" name=\"cursantParinteTata\" />\r\n                <hr />\r\n                <label for=\"cursantDataNasterii\">Data nașterii:</label>\r\n                <input type=\"date\" id=\"cursantDataNasterii\" name=\"cursantDataNasterii\" />\r\n                <hr />\r\n                <label for=\"cursantLocNastere\">Locul nașterii:</label>\r\n                <input type=\"text\" id=\"cursantLocNastere\" name=\"cursantLocNastere\" />\r\n                <hr />\r\n                <input type=\"submit\" value=\"Submit\">\r\n            </form>\r\n        </div>\r\n\r\n         <div id=\"companieForm\" class=\"hidden\">\r\n            <h2>Introducere Date Companie</h2>\r\n            <form method=\"post\">\r\n                <input type=\"hidden\" name=\"form_type\" value=\"companie\">\r\n                <label for=\"companieNume\">Nume:</label>\r\n                <input type=\"text\" id=\"companieNume\" name=\"companieNume\" />\r\n                <hr />\r\n                <label for=\"companieLocalitate\">Localitate:</label>\r\n                <input type=\"text\" id=\"companieLocalitate\" name=\"companieLocalitate\" />\r\n                <hr />\r\n                <label for=\"companieJudet\">Județ:</label>\r\n                <input type=\"text\" id=\"companieJudet\" name=\"companieJudet\" />\r\n                <hr />\r\n                <input type=\"submit\" value=\"Submit\">\r\n            </form>\r\n        </div>\r\n\r\n        <div id=\"comisieForm\" class=\"hidden\">\r\n            <h2>Introducere Date Comisie</h2>\r\n            <form method=\"post\">\r\n                <input type=\"hidden\" name=\"form_type\" value=\"comisie\">\r\n                <label for=\"comisieDirector\">Director:</label>\r\n                <input type=\"text\" id=\"comisieDirector\" name=\"comisieDirector\" />\r\n                <hr />\r\n                <label for=\"comisieSecretar\">Secretar:</label>\r\n                <input type=\"text\" id=\"comisieSecretar\" name=\"comisieSecretar\" />\r\n                <hr />\r\n                <label for=\"comisiePresedinte\">Președinte:</label>\r\n                <input type=\"text\" id=\"comisiePresedinte\" name=\"comisiePresedinte\" />\r\n                <hr />\r\n                <input type=\"submit\">\r\n            </form>\r\n        </div>\r\n\r\n        <div id=\"cursForm\" class=\"hidden\">\r\n            <h2>Introducere Date Curs</h2>\r\n            <form method=\"post\">\r\n                <input type=\"hidden\" name=\"form_type\" value=\"curs\">\r\n                <label for=\"cursNume\">Nume curs:</label>\r\n                <input type=\"text\" id=\"cursNume\" name=\"cursNume\" />\r\n                <hr />\r\n                <label for=\"cursDescriere\">Descriere:</label>\r\n                <input type=\"text\" id=\"cursDescriere\" name=\"cursDescriere\" />\r\n                <hr />\r\n                <label for=\"cursCor\">Cod COR:</label>\r\n                <input type=\"text\" id=\"cursCor\" name=\"cursCor\" />\r\n                <hr />\r\n                <label for=\"cursNrRegistru\">Numar registru national de formare profesionala:</label>\r\n                <input type=\"text\" id=\"cursNrRegistru\" name=\"cursNrRegistru\" />\r\n                <hr />\r\n                <label for=\"cursDataIncepere\">Data începerii:</label>\r\n                <input type=\"date\" id=\"cursDataIncepere\" name=\"cursDataIncepere\" />\r\n                <hr />\r\n                <label for=\"cursDataFinalizare\">Data finalizarii:</label>\r\n                <input type=\"date\" id=\"cursDataFinalizare\" name=\"cursDataFinalizare\" />\r\n                <hr />\r\n                <label for=\"cursDataExaminare\">Data examinarii:</label>\r\n                <input type=\"date\" id=\"cursDataExaminare\" name=\"cursDataExaminare\" />\r\n                <hr />\r\n\r\n                <input type=\"submit\">\r\n            </form>\r\n        </div>\r\n\r\n\r\n        <div class=\"link-box\">\r\n            <a href=\"{{ url_for('home') }}\" class=\"button\">Înapoi la pagina principală</a>\r\n        </div>\r\n    </div>\r\n\r\n    <script>\r\n        function handleDropdownChange() {\r\n            var dropdown = document.getElementById('dropdown');\r\n            var cursantForm = document.getElementById('cursantForm');\r\n            var companieForm = document.getElementById('companieForm');\r\n            var comisieForm = document.getElementById('comisieForm');\r\n            var cursForm = document.getElementById('cursForm');\r\n\r\n            cursantForm.classList.add('hidden');\r\n            companieForm.classList.add('hidden');\r\n            comisieForm.classList.add('hidden');\r\n            cursForm.classList.add('hidden');\r\n\r\n            if (dropdown.value === 'option1') {\r\n                cursantForm.classList.remove('hidden');\r\n            } else if (dropdown.value === 'option2') {\r\n                companieForm.classList.remove('hidden');\r\n            } else if (dropdown.value === 'option3') {\r\n                comisieForm.classList.remove('hidden');\r\n            } else if (dropdown.value === 'option4') {\r\n                cursForm.classList.remove('hidden');\r\n            }\r\n        }\r\n    </script>\r\n</body>\r\n</html>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/adaugare_date.html b/templates/adaugare_date.html
+--- a/templates/adaugare_date.html	
++++ b/templates/adaugare_date.html	
+@@ -23,13 +23,10 @@
+ 
+         <div id="cursantForm" class="hidden">
+             <h2>Introducere Date Cursant</h2>
+-            <form method="post">
++            <form method="post" onsubmit="return validateCursantForm()">
+                 <input type="hidden" name="form_type" value="cursant">
+                 <label for="cursantNume">Nume:</label>
+                 <input type="text" id="cursantNume" name="cursantNume" />
+-                <hr />
+-                <label for="cursantPrenume">Prenume:</label>
+-                <input type="text" id="cursantPrenume" name="cursantPrenume" />
+                 <hr />
+                 <label for="cursantCNP">CNP:</label>
+                 <input type="text" id="cursantCNP" name="cursantCNP" />
+@@ -46,9 +43,16 @@
+                 <label for="cursantParinteTata">Prenume tată:</label>
+                 <input type="text" id="cursantParinteTata" name="cursantParinteTata" />
+                 <hr />
+-                <label for="cursantDataNasterii">Data nașterii:</label>
+-                <input type="date" id="cursantDataNasterii" name="cursantDataNasterii" />
++                <label for="cursantAnulNasterii">Anul nașterii:</label>
++                <input type="text" id="cursantAnulNasterii" name="cursantAnulNasterii" />
++                <hr />
++                <label for="cursantLunaNasterii">Luna nașterii:</label>
++                <input type="text" id="cursantLunaNasterii" name="cursantLunaNasterii" />
+                 <hr />
++                <label for="cursantZiuaNasterii">Ziua nașterii:</label>
++                <input type="text" id="cursantZiuaNasterii" name="cursantZiuaNasterii" />
++                <hr />
++
+                 <label for="cursantLocNastere">Locul nașterii:</label>
+                 <input type="text" id="cursantLocNastere" name="cursantLocNastere" />
+                 <hr />
+@@ -112,8 +116,17 @@
+                 <label for="cursDataFinalizare">Data finalizarii:</label>
+                 <input type="date" id="cursDataFinalizare" name="cursDataFinalizare" />
+                 <hr />
+-                <label for="cursDataExaminare">Data examinarii:</label>
+-                <input type="date" id="cursDataExaminare" name="cursDataExaminare" />
++                <label for="cursDurata">Durata:</label>
++                <input type="text" id="cursDurata" name="cursDurata" />
++                <hr />
++                <label for="cursAnulExaminarii">Anul examinarii:</label>
++                <input type="text" id="cursAnulExaminarii" name="cursAnulExaminarii" />
++                <hr />
++                <label for="cursLunaExaminarii">Luna examinarii:</label>
++                <input type="text" id="cursLunaExaminarii" name="cursLunaExaminarii" />
++                <hr />
++                <label for="cursZiuaExaminarii">Ziua examinarii:</label>
++                <input type="text" id="cursZiuaExaminarii" name="cursZiuaExaminarii" />
+                 <hr />
+ 
+                 <input type="submit">
+@@ -149,6 +162,50 @@
+                 cursForm.classList.remove('hidden');
+             }
+         }
++
++        function validateCursantForm() {
++            var cnp = document.getElementById('cursantCNP').value;
++            var nume = document.getElementById('cursantNume').value;
++            if ([...nume].some(char => !isNaN(char))) {
++                alert("Numele nu trebuie să conțină cifre!");
++                return false;
++            }
++            if (cnp.length !== 13) {
++                alert("CNP-ul trebuie să aibă 13 caractere!");
++                return false;
++            }
++            else if (!'12345678'.includes(cnp[0])) {
++                alert("CNP-ul nu trebuie să înceapă cu 0 sau 9!");
++                return false;
++            }
++            else if (cnp.trim() === "") {
++                alert("CNP-ul este gol!");
++                return false;
++            }
++            else if (isNaN(cnp)) {
++                alert("CNP-ul nu trebuie să conțină litere!");
++                return false;
++            }
++            else {
++                var valoare_ct = [2, 7, 9, 1, 4, 6, 3, 5, 8, 2, 7, 9];
++                var suma = 0;
++
++                for (var i = 0; i < 12; i++) {
++                    suma += parseInt(cnp[i]) * valoare_ct[i];
++                }
++
++                var cifra_control = suma % 11;
++                if (cifra_control === 10) {
++                    cifra_control = 1;
++                }
++                if (cifra_control !== parseInt(cnp[12])) {
++                    alert("Ultima cifră a CNP-ului nu este corectă!");
++                    return false;
++                }
++            }
++
++            return true;
++        }
+     </script>
+ </body>
+ </html>
+Index: vizualizare.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/vizualizare.py b/vizualizare.py
+new file mode 100644
+--- /dev/null	
++++ b/vizualizare.py	
+@@ -0,0 +1,14 @@
++
++from connect import DBConnection
++
++def obtine_date(tabel):
++    db = DBConnection().get_connection()
++    try:
++        with db.cursor() as cursor:
++            sql = f"SELECT * FROM {tabel}"
++            cursor.execute(sql)
++            date = cursor.fetchall()
++            return date
++    finally:
++        db.close()
++
+Index: static/style_vizualizare.css
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/static/style_vizualizare.css b/static/style_vizualizare.css
+new file mode 100644
+--- /dev/null	
++++ b/static/style_vizualizare.css	
+@@ -0,0 +1,92 @@
++/* static/css/style.css */
++
++body {
++    display: flex;
++    justify-content: center;
++    align-items: center;
++    height: 100vh;
++    background: linear-gradient(to right, #a6a56f, #d67523);
++    font-family: 'Roboto', sans-serif;
++    margin: 0;
++    color: #fff;
++}
++
++.container {
++    text-align: center;
++    position: relative;
++    background-color: #333;
++    padding: 20px;
++    border-radius: 10px;
++    width: 90%;
++    max-width: 1200px;
++}
++
++.hidden {
++    display: none;
++}
++
++table {
++    width: 100%;
++    border-collapse: collapse;
++    margin: 20px 0;
++    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
++}
++
++table, th, td {
++    border: 1px solid #fff;
++}
++
++th, td {
++    padding: 10px;
++    text-align: left;
++}
++
++th {
++    background-color: #555;
++}
++
++tr:nth-child(even) {
++    background-color: #444;
++}
++
++form {
++    display: flex;
++    flex-direction: column;
++    align-items: center;
++    margin-top: 20px;
++}
++
++form label, form input {
++    margin: 5px 0;
++}
++
++form hr {
++    width: 100%;
++    border: 0.5px solid #fff;
++}
++
++.button {
++    padding: 10px 20px;
++    background-color: rgba(255, 255, 255, 0.1);
++    border: none;
++    border-radius: 5px;
++    cursor: pointer;
++    color: #fff;
++    text-decoration: none;
++    display: inline-block;
++    margin-top: 20px;
++}
++
++.button:hover {
++    background-color: rgba(255, 255, 255, 0.2);
++}
++
++.link-box {
++    position: fixed;
++    bottom: 10px;
++    right: 10px;
++}
++
++.company-form {
++    margin-top: 10px;
++}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"5dd892fa-b87d-4a97-a1ee-a921ae68d417\" name=\"Changes\" comment=\"\">\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/FINAL.iml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/modules.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/vcs.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/main.py\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/static/style.css\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/static/style_actualizare.css\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/static/style_adaugare.css\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/static/style_generare.css\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/static/style_stergere.css\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/templates/actualizare_date.html\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/templates/adaugare_date.html\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/templates/generare_documente.html\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/templates/index.html\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/templates/stergere_date.html\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"JavaScript File\" />\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 5\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2kYNPU3mdqGMbdu8u3twv6YoenE\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;Python.main.executor&quot;: &quot;Run&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;master&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/Mihai/PycharmProjects/FINAL&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\Mihai\\PycharmProjects\\FINAL\" />\r\n    </key>\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\Mihai\\PycharmProjects\\FINAL\\static\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"main\" type=\"PythonConfigurationType\" factoryName=\"Python\" nameIsGenerated=\"true\">\r\n      <module name=\"FINAL\" />\r\n      <option name=\"ENV_FILES\" value=\"\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"true\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/main.py\" />\r\n      <option name=\"PARAMETERS\" value=\"\" />\r\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\r\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\r\n      <option name=\"MODULE_MODE\" value=\"false\" />\r\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\r\n      <option name=\"INPUT_FILE\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.18034.82\" />\r\n        <option value=\"bundled-python-sdk-975db3bf15a3-2767605e8bc2-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.18034.82\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"5dd892fa-b87d-4a97-a1ee-a921ae68d417\" name=\"Changes\" comment=\"\" />\r\n      <created>1723456527141</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1723456527141</updated>\r\n      <workItem from=\"1723456529977\" duration=\"3794000\" />\r\n      <workItem from=\"1723533055363\" duration=\"6819000\" />\r\n      <workItem from=\"1723548586742\" duration=\"704000\" />\r\n      <workItem from=\"1723628673959\" duration=\"2821000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\r\n    <SUITE FILE_PATH=\"coverage/FINAL$main.coverage\" NAME=\"main Coverage Results\" MODIFIED=\"1723631017824\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -5,24 +5,13 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="5dd892fa-b87d-4a97-a1ee-a921ae68d417" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/.idea/FINAL.iml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/static/style.css" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/static/style_actualizare.css" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/static/style_adaugare.css" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/static/style_generare.css" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/static/style_stergere.css" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/templates/actualizare_date.html" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/templates/adaugare_date.html" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/templates/generare_documente.html" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/templates/stergere_date.html" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/static/style_vizualizare.css" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/templates/vizualizare_date.html" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/vizualizare.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/templates/adaugare_date.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/adaugare_date.html" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -33,7 +22,9 @@
+     <option name="RECENT_TEMPLATES">
+       <list>
+         <option value="JavaScript File" />
++        <option value="HTML File" />
+         <option value="Python Script" />
++        <option value="CSS File" />
+       </list>
+     </option>
+   </component>
+@@ -49,20 +40,22 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Mihai/PycharmProjects/FINAL&quot;,
+-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "DefaultHtmlFileTemplate": "HTML File",
++    "Python.main.executor": "Run",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "git-widget-placeholder": "master",
++    "last_opened_file_path": "C:/Users/Mihai/PycharmProjects/FINAL",
++    "list.type.of.created.stylesheet": "CSS",
++    "node.js.detected.package.eslint": "true",
++    "node.js.detected.package.tslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "nodejs_package_manager_path": "npm",
++    "vue.rearranger.settings.migration": "true"
+   }
+-}</component>
++}]]></component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+       <recent name="C:\Users\Mihai\PycharmProjects\FINAL" />
+@@ -115,7 +108,9 @@
+       <workItem from="1723456529977" duration="3794000" />
+       <workItem from="1723533055363" duration="6819000" />
+       <workItem from="1723548586742" duration="704000" />
+-      <workItem from="1723628673959" duration="2821000" />
++      <workItem from="1723628673959" duration="3460000" />
++      <workItem from="1723632554273" duration="1007000" />
++      <workItem from="1724055211989" duration="7713000" />
+     </task>
+     <servers />
+   </component>
+@@ -123,6 +118,6 @@
+     <option name="version" value="3" />
+   </component>
+   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+-    <SUITE FILE_PATH="coverage/FINAL$main.coverage" NAME="main Coverage Results" MODIFIED="1723631017824" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
++    <SUITE FILE_PATH="coverage/FINAL$main.coverage" NAME="main Coverage Results" MODIFIED="1724063859035" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: templates/vizualizare_date.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/vizualizare_date.html b/templates/vizualizare_date.html
+new file mode 100644
+--- /dev/null	
++++ b/templates/vizualizare_date.html	
+@@ -0,0 +1,119 @@
++<!DOCTYPE html>
++<html lang="en">
++<head>
++    <meta charset="UTF-8">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0">
++    <title>Vizualizare Date</title>
++    <link rel="stylesheet" href="{{ url_for('static', filename='style_vizualizare.css') }}">
++    <script>
++        document.addEventListener('DOMContentLoaded', function() {
++            function fetchData(url, tableId, columns) {
++                fetch(url)
++                    .then(response => response.json())
++                    .then(data => {
++                        const tableBody = document.querySelector(`#${tableId} tbody`);
++                        tableBody.innerHTML = ''; // Curăță tabelul existent
++                        data.forEach(row => {
++                            const tr = document.createElement('tr');
++                            columns.forEach(column => {
++                                const td = document.createElement('td');
++                                td.textContent = row[column] || '';
++                                tr.appendChild(td);
++                            });
++                            tableBody.appendChild(tr);
++                        });
++                    })
++                    .catch(error => console.error('Error fetching data:', error));
++            }
++
++            fetchData('/api/cursanti', 'cursanti-table', ['nume', 'cnp', 'judet_sector', 'localitate', 'Prenume_mama', 'Prenume_tata', 'anul_nasterii', 'luna_nasterii', 'ziua_nasterii', 'locul_nasterii']);
++            fetchData('/api/companii', 'companii-table', ['nume', 'localitate', 'judet']);
++            fetchData('/api/comisii', 'comisii-table', ['director', 'secretar', 'presedinte']);
++            fetchData('/api/cursuri', 'cursuri-table', ['nume_curs', 'descriere', 'cor', 'nr_registru', 'data_incepere', 'data_finalizare', 'durata', 'anul_examinarii', 'luna_examinarii', 'ziua_examinarii']);
++
++            setInterval(() => {
++                fetchData('/api/cursanti', 'cursanti-table', ['nume', 'cnp', 'judet_sector', 'localitate', 'Prenume_mama', 'Prenume_tata', 'anul_nasterii', 'luna_nasterii', 'ziua_nasterii', 'locul_nasterii']);
++                fetchData('/api/companii', 'companii-table', ['nume', 'localitate', 'judet']);
++                fetchData('/api/comisii', 'comisii-table', ['director', 'secretar', 'presedinte']);
++                fetchData('/api/cursuri', 'cursuri-table', ['nume_curs', 'descriere', 'cor', 'nr_registru', 'data_incepere', 'data_finalizare', 'durata', 'anul_examinarii', 'luna_examinarii', 'ziua_examinarii']);
++            }, 10000);
++        });
++    </script>
++</head>
++<body>
++    <div class="container">
++        <h1>Date Cursanți</h1>
++        <table id="cursanti-table">
++            <thead>
++                <tr>
++                    <th>Nume</th>
++                    <th>CNP</th>
++                    <th>Județ/Sector</th>
++                    <th>Localitate</th>
++                    <th>Prenume Mamă</th>
++                    <th>Prenume Tată</th>
++                    <th>Anul Nașterii</th>
++                    <th>Luna Nașterii</th>
++                    <th>Ziua Nașterii</th>
++                    <th>Locul Nașterii</th>
++                </tr>
++            </thead>
++            <tbody>
++                <!-- Datele vor fi încărcate dinamic aici -->
++            </tbody>
++        </table>
++
++        <h1>Date Companii</h1>
++        <table id="companii-table">
++            <thead>
++                <tr>
++                    <th>Nume</th>
++                    <th>Localitate</th>
++                    <th>Județ</th>
++                </tr>
++            </thead>
++            <tbody>
++                <!-- Datele vor fi încărcate dinamic aici -->
++            </tbody>
++        </table>
++
++        <h1>Date Comisii</h1>
++        <table id="comisii-table">
++            <thead>
++                <tr>
++                    <th>Director</th>
++                    <th>Secretar</th>
++                    <th>Președinte</th>
++                </tr>
++            </thead>
++            <tbody>
++                <!-- Datele vor fi încărcate dinamic aici -->
++            </tbody>
++        </table>
++
++        <h1>Date Cursuri</h1>
++        <table id="cursuri-table">
++            <thead>
++                <tr>
++                    <th>Nume Curs</th>
++                    <th>Descriere</th>
++                    <th>Cor</th>
++                    <th>Nr Registru</th>
++                    <th>Data Începere</th>
++                    <th>Data Finalizare</th>
++                    <th>Durata</th>
++                    <th>Anul Examinării</th>
++                    <th>Luna Examinării</th>
++                    <th>Ziua Examinării</th>
++                </tr>
++            </thead>
++            <tbody>
++                <!-- Datele vor fi încărcate dinamic aici -->
++            </tbody>
++        </table>
++    </div>
++    <div class="link-box">
++        <a href="{{ url_for('home') }}" class="button">Înapoi la pagina principală</a>
++    </div>
++</body>
++</html>
+Index: templates/index.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<head>\r\n    <meta charset=\"UTF-8\">\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n    <title>Pagina Principală</title>\r\n    <link href=\"https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap\" rel=\"stylesheet\">\r\n    <link rel=\"stylesheet\" href=\"{{ url_for('static', filename='style.css') }}\">\r\n</head>\r\n<body>\r\n    <nav class=\"navbar\">\r\n        <a class=\"nav-link\" href=\"{{ url_for('adaugare') }}\">Adăugare Date</a>\r\n        <a class=\"nav-link\" href=\"{{ url_for('actualizare_date') }}\">Actualizare Date</a>\r\n        <a class=\"nav-link\" href=\"{{ url_for('stergere_date') }}\">Stergere Date</a>\r\n        <a class=\"nav-link\" href=\"{{ url_for('generare_documente') }}\">Generare Documente</a>\r\n     </nav>\r\n</body>\r\n</html>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/index.html b/templates/index.html
+--- a/templates/index.html	
++++ b/templates/index.html	
+@@ -12,6 +12,7 @@
+         <a class="nav-link" href="{{ url_for('adaugare') }}">Adăugare Date</a>
+         <a class="nav-link" href="{{ url_for('actualizare_date') }}">Actualizare Date</a>
+         <a class="nav-link" href="{{ url_for('stergere_date') }}">Stergere Date</a>
++        <a class="nav-link" href="{{ url_for('vizualizare_date') }}">Vizualizare Date</a>
+         <a class="nav-link" href="{{ url_for('generare_documente') }}">Generare Documente</a>
+      </nav>
+ </body>

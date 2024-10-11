@@ -5,24 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5dd892fa-b87d-4a97-a1ee-a921ae68d417" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/FINAL.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/style.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/style_actualizare.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/style_adaugare.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/style_generare.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/style_stergere.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/actualizare_date.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/adaugare_date.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/generare_documente.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/stergere_date.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/style_vizualizare.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/vizualizare_date.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vizualizare.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/citire.py" beforeDir="false" afterPath="$PROJECT_DIR$/citire.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/connect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/style_generare.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/actualizare_date.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/actualizare_date.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/adaugare_date.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/adaugare_date.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/generare_documente.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/generare_documente.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/stergere_date.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/stergere_date.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,12 +29,25 @@
       <list>
         <option value="JavaScript File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Mihai2507&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Mihai2507/Data-Management-Web.git&quot;,
+    &quot;accountId&quot;: &quot;1960c43f-1bed-42cb-827b-c8f059f33332&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -51,6 +59,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;Python.main.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
@@ -116,6 +125,13 @@
       <workItem from="1723533055363" duration="6819000" />
       <workItem from="1723548586742" duration="704000" />
       <workItem from="1723628673959" duration="2821000" />
+      <workItem from="1724105088337" duration="2083000" />
+      <workItem from="1724247347596" duration="146000" />
+      <workItem from="1724310616431" duration="4090000" />
+      <workItem from="1724315419282" duration="5394000" />
+      <workItem from="1724337371742" duration="782000" />
+      <workItem from="1724407740384" duration="7723000" />
+      <workItem from="1724666849996" duration="4722000" />
     </task>
     <servers />
   </component>
@@ -123,6 +139,6 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/FINAL$main.coverage" NAME="main Coverage Results" MODIFIED="1723631017824" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/FINAL$main.coverage" NAME="main Coverage Results" MODIFIED="1724671615247" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

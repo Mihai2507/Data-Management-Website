@@ -27,7 +27,6 @@
                 <input type="hidden" name="table" id="tableInput" value="" />
                 <label for="column">Selectează câmpul pentru actualizare:</label>
                 <select id="column" name="column">
-                    <!-- Options will be populated by JavaScript -->
                 </select>
                 <label for="old_value">Valoare veche:</label>
                 <input type="text" id="old_value" name="old_value" value="" />
@@ -48,8 +47,6 @@
             var updateForm = document.getElementById('updateForm');
             var tableInput = document.getElementById('tableInput');
             var columnSelect = document.getElementById('column');
-
-            // Clear previous options
             columnSelect.innerHTML = '';
 
             if (dropdown.value) {
@@ -64,10 +61,10 @@
         function populateColumns(table) {
             var columnSelect = document.getElementById('column');
             var columns = {
-                cursant: ['nume', 'prenume', 'cnp', 'prenume_mama', 'prenume_tata', 'locul_nasterii'],
-                companie: ['nume', 'ocupatie', 'cor', 'localitate', 'judet', 'numar_registru', 'data_registru'],
+                cursant: ['nume', 'prenume', 'cnp','judet_sector','localitate','Prenume_mama', 'Prenume_tata','strada','numar_strada','bloc','scara_bloc','nr_apartament','nr_telefon','anul_nasterii','luna_nasterii','ziua_nasterii','locul_nasterii'],
+                companie: ['nume', 'ocupatie', 'localitate', 'judet'],
                 comisie: ['director', 'secretar', 'presedinte'],
-                curs: ['nume_curs', 'descriere', 'data_incepere', 'durata']
+                curs: ['nume_curs', 'descriere','cor','nr_registru','data_incepere','data_finalizare', 'durata','anul_examinarii','luna_examinarii','ziua_examinarii']
             };
 
             if (columns[table]) {

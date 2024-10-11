@@ -1,0 +1,2 @@
+__1__ = cursant.nume
+__2__ = cursant.cnp

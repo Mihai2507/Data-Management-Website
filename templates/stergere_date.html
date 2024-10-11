@@ -29,20 +29,20 @@
 
             switch (table) {
                 case 'cursant':
-                    columns = ['id', 'nume', 'prenume', 'cnp', 'prenume_mama', 'prenume_tata', 'locul_nasterii'];
+                    columns = ['nume', 'prenume', 'cnp','judet_sector','localitate','Prenume_mama', 'Prenume_tata','anul_nasterii','luna_nasterii','ziua_nasterii','locul_nasterii'];
                     break;
                 case 'companie':
-                    columns = ['id', 'nume', 'ocupatie', 'cor', 'localitate', 'judet', 'numar_registru', 'data_registru'];
+                    columns = ['nume', 'ocupatie', 'localitate', 'judet'];
                     break;
                 case 'comisie':
-                    columns = ['id', 'director', 'secretar', 'presedinte'];
+                    columns = ['director', 'secretar', 'presedinte'];
                     break;
                 case 'curs':
-                    columns = ['id', 'nume_curs', 'descriere', 'data_incepere', 'durata'];
+                    columns = ['nume_curs', 'descriere','cor','nr_registru','data_incepere','data_finalizare', 'durata','anul_examinarii','luna_examinarii','ziua_examinarii'];
                     break;
             }
 
-            columnSelect.innerHTML = ''; // Clear previous options
+            columnSelect.innerHTML = '';
             columns.forEach(column => {
                 const option = document.createElement('option');
                 option.value = column;
@@ -58,7 +58,7 @@
         <form action="{{ url_for('stergere_date') }}" method="POST">
             <label for="table">Selectează tabelul:</label>
             <select name="table" id="table" onchange="showDeletionOptions()">
-                <option value="">--Selectează--</option>
+                <option value="">Selectează:</option>
                 <option value="cursant">Cursant</option>
                 <option value="companie">Companie</option>
                 <option value="comisie">Comisie</option>
